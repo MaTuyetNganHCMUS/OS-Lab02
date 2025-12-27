@@ -36,6 +36,7 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
+entry("pgaccess");
 entry("bind");
 entry("unbind");
 entry("send");

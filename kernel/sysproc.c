@@ -99,6 +99,39 @@ sys_kpgtbl(void)
   vmprint(p->pagetable);
   return 0;
 }
+
+int
+sys_pgaccess(void)
+{
+  uint64 base;
+  int len;
+  uint64 mask;
+  uint64 res = 0;
+
+  argaddr(0, &base);
+  argint(1, &len);
+  argaddr(2, &mask);
+  
+  if(len > 64) {
+      return -1;
+  }
+
+  struct proc *p = myproc();
+  
+  for(int i = 0; i < len; i++){
+    uint64 va = base + i * PGSIZE;
+    pte_t *pte = walk(p->pagetable, va, 0);
+    if(pte && (*pte & PTE_V) && (*pte & PTE_A)){
+      res |= (1L << i);
+      *pte &= ~PTE_A;
+    }
+  }
+
+  if(copyout(p->pagetable, mask, (char*)&res, sizeof(res)) < 0)
+    return -1;
+  
+  return 0;
+}
 #endif
 
 
