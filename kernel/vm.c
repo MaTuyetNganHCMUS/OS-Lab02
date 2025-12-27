@@ -497,20 +497,19 @@ vmprint_recursive(pagetable_t pagetable, int level) {
   // Mỗi page table có 2^9 = 512 PTEs.
   for(int i = 0; i < 512; i++){
     pte_t pte = pagetable[i];
-    // Chỉ in các PTE hợp lệ
+    // Chỉ in các PTE hợp lệ (dùng macro PTE_V)
     if(pte & PTE_V) {
       // In thụt lề tương ứng với level (độ sâu). RISCV Sv39 có 3 cấp
       for(int j = 0; j <= level; j++) {
         printf(" ..");
       }
       
-      // In index của PTE, PTE bits, và địa chỉ vật lý
+      // In index của PTE, PTE bits, và địa chỉ vật lý (dùng macro PTE2PA)
       printf("%d: pte %p pa %p\n", i, (void*)pte, (void*)PTE2PA(pte));
       
       // Nếu PTE này trỏ đến page table cấp thấp hơn (không phải leaf)
-      // Điều kiện: R=0 VÀ W=0 VÀ X=0 → trỏ đến page table con
-      int is_leaf = (pte & PTE_R) || (pte & PTE_W) || (pte & PTE_X);
-      if(!is_leaf){ 
+      // Dùng macro PTE_LEAF() 
+      if(!PTE_LEAF(pte)){ 
         // PTE này trỏ đến page table con, tiếp tục đệ quy
         uint64 child = PTE2PA(pte);
         vmprint_recursive((pagetable_t)child, level + 1);
