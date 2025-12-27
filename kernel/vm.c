@@ -486,23 +486,34 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   }
 }
 
-
+// LAB_PGTBL: Lab về quản lý bảng trang (page table management) được định nghĩa trong conf/lab.mk
 #ifdef LAB_PGTBL
-void
-vmprint_walk(pagetable_t pagetable, int depth)
-{
-  // there are 2^9 = 512 PTEs in a page table.
+// Để tách code theo từng lab riêng biệt
+// Code trong phần này chỉ được biên dịch khi định nghĩa LAB_PGTBL
+
+// Hàm đệ quy để in page table theo từng cấp
+static void
+vmprint_recursive(pagetable_t pagetable, int level) {
+  // Mỗi page table có 2^9 = 512 PTEs.
   for(int i = 0; i < 512; i++){
     pte_t pte = pagetable[i];
-    if(pte & PTE_V){
-      for (int j = 0; j <= depth; j++)
-          printf("..");
-      printf("..%d: pte %p pa %p\n", i, (void*)pte, (void*)PTE2PA(pte));
+    // Chỉ in các PTE hợp lệ
+    if(pte & PTE_V) {
+      // In thụt lề tương ứng với level (độ sâu). RISCV Sv39 có 3 cấp
+      for(int j = 0; j <= level; j++) {
+        printf(" ..");
+      }
       
-      if((pte & (PTE_R|PTE_W|PTE_X)) == 0){
-        // this PTE points to a lower-level page table.
+      // In index của PTE, PTE bits, và địa chỉ vật lý
+      printf("%d: pte %p pa %p\n", i, (void*)pte, (void*)PTE2PA(pte));
+      
+      // Nếu PTE này trỏ đến page table cấp thấp hơn (không phải leaf)
+      // Điều kiện: R=0 VÀ W=0 VÀ X=0 → trỏ đến page table con
+      int is_leaf = (pte & PTE_R) || (pte & PTE_W) || (pte & PTE_X);
+      if(!is_leaf){ 
+        // PTE này trỏ đến page table con, tiếp tục đệ quy
         uint64 child = PTE2PA(pte);
-        vmprint_walk((pagetable_t)child, depth + 1);
+        vmprint_recursive((pagetable_t)child, level + 1);
       }
     }
   }
@@ -510,11 +521,11 @@ vmprint_walk(pagetable_t pagetable, int depth)
 
 void
 vmprint(pagetable_t pagetable) {
+  // Dòng đầu tiên, in địa chỉ của page table gốc
   printf("page table %p\n", pagetable);
-  vmprint_walk(pagetable, 0);
+  vmprint_recursive(pagetable, 0);
 }
 #endif
-
 
 
 #ifdef LAB_PGTBL

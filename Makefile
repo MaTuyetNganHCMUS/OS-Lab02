@@ -87,6 +87,11 @@ OBJDUMP = $(TOOLPREFIX)objdump
 
 CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb -gdwarf-2
 
+# Tạo C macro từ biến LAB (được định nghĩa trong conf/lab.mk)
+# Bước 1: Lấy LAB=pgtbl từ conf/lab.mk
+# Bước 2: Chuyển thành chữ hoa: PGTBL
+# Bước 3: Thêm flag -DSOL_PGTBL -DLAB_PGTBL cho compiler
+# Kết quả: Code C trong kernel và user có thể dùng #ifdef LAB_PGTBL để biên dịch
 ifdef LAB
 LABUPPER = $(shell echo $(LAB) | tr a-z A-Z)
 XCFLAGS += -DSOL_$(LABUPPER) -DLAB_$(LABUPPER)
