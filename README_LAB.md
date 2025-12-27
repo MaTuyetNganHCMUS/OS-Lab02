@@ -36,6 +36,15 @@ sequenceDiagram
     Exec-->>User: returns argc
 ```
 
+### Testing Command
+Execute in terminal:
+```bash
+make clean
+make qemu
+```
+**Observation**: You will see the page table printed (with `..` indentation) immediately after `xv6 kernel is booting`.
+
+
 ## Feature 2: Page Access Detection (`pgaccess`)
 -   **Functionality**: Checks the "Accessed" bit (`PTE_A`) in the RISC-V PTEs for a specified range of user pages.
 -   **Logic**:
@@ -67,3 +76,15 @@ sequenceDiagram
     Syscall->>Test: copyout result mask
     Syscall-->>Test: return 0 (Success)
 ```
+
+### Testing Command
+Inside xv6 shell, run:
+```bash
+pgtbltest
+```
+**Observation**:
+```
+pgaccess_test starting
+pgaccess_test: OK
+```
+
