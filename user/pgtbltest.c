@@ -8,7 +8,6 @@
 
 void print_pgtbl();
 void print_kpgtbl();
-void print_kpgtbl();
 void ugetpid_test();
 void pgaccess_test();
 void superpg_test();
