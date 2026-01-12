@@ -20,7 +20,7 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_pgaccess 31
+#define SYS_pgaccess 35
 
 // System calls for labs
 #define SYS_trace     22
